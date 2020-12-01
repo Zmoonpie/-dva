@@ -302,6 +302,7 @@ function Table(props) {
     <div ref={TableRef} className={`${className ? className : ''} table-container`}>
       <div className={'table-scroll'} style={{ height: tableHeight + 'px' }}>
         <BaseTable
+         contentWidth={ tableSize.current.containerWidth}
           scrollType="main"
           {...dValue}
           inherScroll={inherScroll}
@@ -317,6 +318,7 @@ function Table(props) {
         {leftList.length > 0 ? (
           <div className={'left-fixed'} style={leftStyle}>
             <BaseTable
+              
               scrollType="left"
               {...dValue}
               inherScroll={inherScroll}

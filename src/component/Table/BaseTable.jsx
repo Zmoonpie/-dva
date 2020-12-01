@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect,useRef, useState } from 'react';
 import './index.less';
-
+ 
 /* table 做 一级 表头 */
 /* transform的移动 要点：
   1、header 滚动：只有主table会随着滚动，固定的列不随着滚动，并且滚动的方向只能在 x 方向
@@ -10,6 +10,7 @@ import './index.less';
 */
 function Table(props) {
   const {
+    contentWidth,
     onRowClick,
     dataSource,
     columns,
@@ -25,32 +26,45 @@ function Table(props) {
     x,
     y
   } = props;
-    
+
   const genTransform = ((type) => {
     return (pos) => {
       if (type === 'main') {
         if (pos === 'header') {
-          return {transform: `translateX(${x}px)`}
+          return { transform: `translateX(${x}px)` }
         }
         if (pos === 'body') {
-          return { transform: `translate(${x}px, ${y}px)`}
+          return { transform: `translate(${x}px, ${y}px)` }
+        }
+        if (pos === 'open') {
+          return { transform: `translate(${-x}px)` }
         }
       }
       if (type === 'left' || type === 'right') {
         if (pos === 'body') {
-          return {transform: `translateY(${y}px)`}
+          return { transform: `translateY(${y}px)` }
         }
       }
+
     }
   })(scrollType)
 
-  const rowClick = (data,index)=>{
-    if(onRowClick&&onRowClick instanceof Function){
-      onRowClick(data,index)
+  const  [showLeft,setShowLeft]  = useState(true)
+  const rowClick = (data, index) => {
+       
+     setShowLeft( false)
+    if (onRowClick && onRowClick instanceof Function) {
+      onRowClick(data, index)
     }
   }
+   
+  useEffect(() => {
+    if (scrollType === 'left'){ 
+      setShowLeft( true)
+    }
+  }, [x, y])
   return (
-    <div className={className ? `${className} table-content` : 'table-content'}>
+    <div   className={className ? `${className} table-content` : 'table-content'}>
       <div className={`table-header  ${inherScroll ? 'fixed-table-anima' : ''}`} style={width ? { width: width, ...genTransform('header') } : genTransform('header')}>
         <table className={'fixed-table'}>
           <thead>
@@ -64,7 +78,7 @@ function Table(props) {
                     style={item.width && item.fixed ? { maxWidth: item.width } : null}
                   >
                     {
-                      item.headerRender && item.headerRender instanceof Function ? item.headerRender(item.title,item) :<span className={'header-column'}>{item.title}</span>
+                      item.headerRender && item.headerRender instanceof Function ? item.headerRender(item.title, item) : <span className={'header-column'}>{item.title}</span>
                     }
                   </th>
                 ))
@@ -75,7 +89,7 @@ function Table(props) {
       </div>
       {/* ,overflowY:'auto' scroll控制滚动 */}
       <div
-        className={`table-body ${scrollClassName ? scrollClassName : ''} ${loading === 1 ? 'table-body-load': ''} ${loading === 2 ? 'table-body-more': ''}`}
+        className={`table-body ${scrollClassName ? scrollClassName : ''} ${loading === 1 ? 'table-body-load' : ''} ${loading === 2 ? 'table-body-more' : ''}`}
         style={{ width: width, height: height - 41 + 'px' }}
         ref={scrollRef ? scrollRef : null}
       >
@@ -84,27 +98,27 @@ function Table(props) {
             {dataSource && columns
               ? dataSource.map((dataItem, dataIndex) => (
                 <React.Fragment key={dataIndex}>
-                  <tr key={'data_' + dataIndex} onClick={()=>rowClick(dataItem,dataIndex)}>
+                  <tr key={'data_' + dataIndex} onClick={() => rowClick(dataItem, dataIndex)}>
                     {columns.map((columnItem, columnIndex) => (
-                        <td
-                          key={columnIndex}
-                          width={columnItem.width ? columnItem.width : null}
-                          className={columnItem.columnClass ? columnItem.columnClass : null}
-                        >
-                          {columnItem.render && columnItem.render instanceof Function ? (
-                            columnItem.render(dataItem[columnItem.dataIndex],dataItem,columnItem.dataIndex)
-                          ) : (
+                      <td
+                        key={columnIndex}
+                        width={columnItem.width ? columnItem.width : null}
+                        className={columnItem.columnClass ? columnItem.columnClass : null}
+                      >
+                        {columnItem.render && columnItem.render instanceof Function ? (
+                          columnItem.render(dataItem[columnItem.dataIndex], dataItem, columnItem.dataIndex)
+                        ) : (
                             <span>{dataItem[columnItem.dataIndex]}</span>
                           )}
-                        </td>
-                      ))}
+                      </td>
+                    ))}
                   </tr>
-                  {dataItem.show&&<tr ><td style={{position:"relative" }} colSpan={columns.length}>
-                  {
-                    scrollType === 'main' ? (<div style={{position:'absolute',top:0,bottom:0,left:0,right:0,border:'1px solid black'}}>
-                    dsfsdfsdfsdf
-                  </div>):null
-                  }
+                  {dataItem.show && <tr ><td style={{ position: "relative", height: '40px' }} colSpan={columns.length}>
+                    {
+                      scrollType === 'main' ? (<div style={{ ...genTransform('open'), position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, border: '1px solid black', width: contentWidth + 'px' }}>
+                        ssssssssss
+                      </div>) : null
+                    }
                   </td></tr>}
                 </React.Fragment>
               ))
