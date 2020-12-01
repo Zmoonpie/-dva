@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
+import Table from '../../component/Table/example/TableTestForGen'
 const wrap = Wr  =>{
      
     return  (props)=>{ 
@@ -14,6 +14,7 @@ function Index (props) {
         <div>
             {props.count}
             <button onClick={() => con()}> 按我</button>
+            <Table></Table>
         </div>
     )
 }
